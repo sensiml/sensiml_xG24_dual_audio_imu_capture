@@ -1,9 +1,9 @@
 
-# SensiML Microphone Recognition Example #
+# SensiML IMU and Microphone Recognition Example #
 
 ## Summary ##
 
-This project uses the xG24 dev board (BRD2601B) and the onboard I2S microphone sensor to simulate a "smart lock" . This example project uses the Knowledge Pack created by SensiML along with the microphone component drivers running in a bare-metal configuration. The sensor data output is passed to the Machine Learning model created using SensiML's analytics studio, which is downloaded as a Knowledge Pack and incorporated into a Simplicity Studio V5 project to run inferences on the xG24.
+This project uses the xG24 dev board (BRD2601B) the onboard I2S microphone sensor, and the onboard IMU to simulate a "smart lock" . This example project uses the Knowledge Packs created by SensiML along with the microphone and IMU component drivers running in a bare-metal configuration. The sensor data output is passed to the Machine Learning model created using SensiML's analytics studio, which is downloaded as a Knowledge Pack and incorporated into a Simplicity Studio V5 project to run inferences on the xG24.
 
 Software Components used: I2S Microphone, Simple LED, IO Stream: USART, Sleeptimer
 
