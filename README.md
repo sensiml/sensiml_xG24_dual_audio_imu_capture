@@ -1,19 +1,19 @@
 
-# SensiML IMU and Microphone Capture Example #
+# SensiML xG24 Microphone and IMU Data Capture Example #
 
 ## Summary ##
 
-This project uses the xG24 dev board (BRD2601B) the onboard I2S microphone sensor, and the onboard IMU to simulate a "smart lock" . This example project uses the Knowledge Packs created by SensiML along with the microphone and IMU component drivers running in a bare-metal configuration. The sensor data output is passed to the Machine Learning model created using SensiML's analytics studio, which is downloaded as a Knowledge Pack and incorporated into a Simplicity Studio V5 project to run inferences on the xG24.
+This project uses the EFR32xG24 Dev Kit Board with the onboard IMU and I2S microphone sensosr to take audio and motion measurements and send data via serial UART. A basic python script is also provided to capture the data and store as a wav file for the audio and a CSV file for the IMU data.  The example project uses the I/O Stream service along with Microphone and IMU component drivers running in a bare-metal configuration. Sensor data from the I2S Microphone and the SPI IMU is transferred over virtual COM port (VCOM) at 921600 baud. The sensor data output data rate is configured at 16 kHz while the IMU is set to sample at 102.3 Hz.
 
-Software Components used: I2S Microphone, Simple LED, IO Stream: USART, Sleeptimer
+Software Components used: I2S Microphone, Simple LED, IO Stream: USART, Sleeptimer, IMU
 
 ## Gecko SDK version ##
 
-v4.0.2
+v4.02
 
 ## Hardware Required ##
 
-- One xG24 development kid (BRD2601B)
+- One EFR32xG24 Dev Kit Board (Link currently unavailable)
 
 - One micro USB cable
 
@@ -23,27 +23,25 @@ Import the included .sls file to Studio then build and flash the project to the 
 In Simplicity Studio select "File->Import" and navigate to the directory with the .sls project file.
 The project is built with relative paths to the STUDIO_SDK_LOC variable which was defined as
 
-C:\SiliconLabs\SimplicityStudio\v5\developer\sdks\gecko_sdk_suite\v4.0.2
+C:\SiliconLabs\SimplicityStudio\v5\developer\sdks\gecko_sdk_suite\v4.0
 
-After flashing the device with the firmware, open a serial terminal program (such as TeraTerm), select the device COM port and observe the classification output. The settings for the Serial Terminal are 912600 bps baud rate, 8N1 and no handshake. 
+In Simplicity Studio, under the Debug Adapters window, right-click on the EFR32xG24 Dev Kit Board device and select "Launch console..." from the drop-down menu. In the Adapter Console window, select the "Admin" tab and type "serial vcom config speed 921600" into the terminal input. This will modify the VCOM baudrate to match the application settings. If making any changes to the USART baudrate, the baudrate change must also be modified in the VCOM debug adapter settings.
 
 ## How the Project Works ##
 
-The application uses the process-action bare-metal project configuration model. Running a Machine Learning model on an embedded device such as the xG24 dev board can be very broadly classified into three steps. 
-Step 1: Data collection and labelling which is covered in the Microphone Data Capture project. 
-Step 2: This labelled data is then passed on to SensiML's Analytics Studio to design a machine learning model based on the end-goal (i.e., classify audio). For inference to run on an embedded device, a Machine Learning model should be created and converted to an embedded device friendly version and flashed to the device. The Machine Learning model is created, trained and tested in SensiML's Analytics Studio. The model that gets generated for the xG24 dev kit device is called a Knowledge Pack. Going into the details of this process is beyond the scope of this readme, but for more information, refer to SensiML's Analytics Studio Documentation - https://sensiml.com/documentation/guides/analytics-studio/index.html. 
-Step 3:  The Knowledge Pack can be downloaded as a library and incorporated into an embedded firmware application. The application can then be flashed onto the device. The model will run on the xG25 dev board and can classify incoming voice data based on the labels created in Steps 1 and 2. This project showcases step 3. 
+The application uses the process-action bare-metal project configuration model. First, the IO Stream/USART are configured for 8 bit, no parity, 1 stop bit, and 921600 baudrate. A periodic sleep timer is also configured with 1 second interrupt. Within the application's process actions, the serial input is monitored for a connection command expected from SensiML's Data Capture Lab (DCL). A JSON configuration packet is sent via USART/VCOM to the PC once per second (via sleep timer) until the connection command is received, at which point the application halts monitoring the serial input and sending configuration information. The I2S Microphone and IMU are initialized and data is sent to PC at the specified data rate (default setting is 16 kHz for audio and 102.3 for IMU). The onboard LEDs are also used to indicate that the application is running (blinking green LED at 2 Hz) and when the application is waiting for the connection command (solid red LED). Once connected, the red LED will turn off. Upon disconnecting from SensiML, the red LED will be turned on again and the device will resume sending configuration packets. The device can be reconnected without a reset. 
 
-This project detects and classifies four types of sounds 
-
-1: key-io (putting key in the key hole)
-2: knocking (if you knock on your desk that should work)
-3: Locking (using the door knob)
-4: Unknow (in the case of ambient noise)
-
-The data obtained from the Microphone sensor is passed onto SensiML's Knowledge Pack that then classifies the audio. 
+The audio output data rate is hard-coded in the application in "app_voice.c" defined as VOICE_SAMPLE_RATE_DEFAULT (line 32) using the enumeration "sample_rate_t" found in "app_voice.h" starting at line 23. Two data rates are available, 8 KHz and 16 kHz (default setting).  The IMU data rate is set by modifying the ACCEL_GYRO_DEFAULT_ODR constant in the header file app_sensor_imu.h
+ 
 
 ## .sls Projects Used ##
 
-SensiML_xG24_Microphone_Recognition.sls
+SensiML_Microphone_data_capture.sls
 
+## How to Port to Another Part ##
+
+Open the "Project Properties" and navigate to the "C/C++ Build -> Board/Part/SDK" item.  Select the new board or part to target and "Apply" the changes.  Note: there may be dependencies that need to be resolved when changing the target architecture.
+
+## Known issue ##
+
+Currently due to the architecture of the drivers, higher sampling rates for the IMU are not possible.  Current measurements indicate a practical limit of around 2000Hz.
