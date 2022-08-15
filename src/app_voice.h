@@ -52,7 +52,7 @@ void app_config_mic(void);
 /***************************************************************************//**
  * JSON configuration message ticking function.
  ******************************************************************************/
-void app_config_process_action(void);
+void app_config_process_action_audio(void);
 
 /***************************************************************************//**
  * Initialize internal variables.

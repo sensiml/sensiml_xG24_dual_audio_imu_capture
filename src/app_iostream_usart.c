@@ -46,8 +46,10 @@
 #include "sl_mic.h"
 #include "app_led.h"
 
+#include "ssi_comms.h"
+
 extern volatile bool config_received;
-extern sl_sleeptimer_timer_handle_t send_config_timer;
+extern sl_sleeptimer_timer_handle_t send_config_timer_audio, send_config_timer_imu;
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
@@ -107,18 +109,33 @@ void app_iostream_usart_process_action(void)
     buffer[index] = '\0';
     index = 0;
     if ((strcmp("connect", buffer) == 0) || (strcmp("cnnect", buffer) == 0)) {
+
+      app_sensor_imu_init();
+
+      app_sensor_imu_enable(true);
       //initialize microphone
       app_voice_init();
 
       // Start sampling
       app_voice_start();
 
-      sl_sleeptimer_stop_timer(&send_config_timer);
+      sl_sleeptimer_stop_timer(&send_config_timer_imu);
 
       config_received = true;
 
       // Turn off LED0 (red) to indicate open connection; data transfer
       app_config_led_off();
+      // reset sequence number for this connection, for default channel
+      ssi_seqnum_reset(SSI_CHANNEL_DEFAULT);
     }
+    else if ((strcmp("disconnect", buffer) == 0)) {
+              //initialize IMU and start measurement
+              app_voice_stop();
+
+              config_received = false;
+              app_config_mic();
+              // Turn off LED0 (red) to indicate open connection; data transfer
+              app_led_init();
+            }
   }
 }

@@ -38,27 +38,31 @@
 #include "app_iostream_usart.h"
 #include "app_voice.h"
 #include "app_led.h"
-#include "kb.h"
 
-volatile bool config_received = true;
+volatile bool config_received = false;
 
 void app_init(void)
 {
   app_iostream_usart_init();
 
-  app_led_init();
+  app_config_mic();
+  app_config_imu();
 
-  kb_model_init();
-  app_voice_init();
-  // Start sampling
-  app_voice_start();
+  app_led_init();
 }
 
 void app_process_action(void)
 {
   // Send JSON configuration and wait to receive "connect" command
-  app_voice_process_action();
+  if (!config_received) {
+    app_config_process_action_imu();
+    app_config_process_action_audio();
+    app_iostream_usart_process_action();
+  } else { // once connected, no longer necessary to listen for commands
+      app_iostream_usart_process_action();
+      app_sensor_imu_process_action();
+      //app_voice_process_action();
+  }
+
   app_led_process_action();
 }
-
-

@@ -44,8 +44,6 @@
 #include "sl_mic.h"
 #include "sl_sleeptimer.h"
 #include "sl_iostream.h"
-#include "kb.h"
-#include "sml_recognition_run.h"
 
 // -----------------------------------------------------------------------------
 // Private macros
@@ -76,6 +74,8 @@ typedef struct {
 } voice_config_t;
 
 // -----------------------------------------------------------------------------
+// Private variables
+
 static biquad_t biquads[MIC_CHANNELS_MAX];
 static filter_context_t filter = { 0, biquads };
 static bool voice_running = false;
@@ -85,8 +85,10 @@ static circular_buffer_t circular_buffer;
 static const int16_t *sample_buffer;
 static uint32_t frames;
 static bool event_process = false;
+static bool event_send = false;
 
-sl_sleeptimer_timer_handle_t send_config_timer;
+static bool send_config_flag = true;
+sl_sleeptimer_timer_handle_t send_config_timer_audio;
 
 // -----------------------------------------------------------------------------
 // Private function declarations
@@ -100,6 +102,20 @@ sl_sleeptimer_timer_handle_t send_config_timer;
 static void voice_process_data(void);
 
 /***************************************************************************//**
+ * Send audio data from circular buffer.
+ *
+ * Data are sent in packages of MIC_SEND_BUFFER_SIZE size.
+ * If there is less then MIC_SEND_BUFFER_SIZE in circular buffer data will be
+ * sent after next DMA readout.
+ ******************************************************************************/
+static void voice_send_data(void);
+
+/***************************************************************************//**
+ * Transmit voice buffer.
+ ******************************************************************************/
+static void voice_transmit(uint8_t *buffer, uint32_t size);
+
+/***************************************************************************//**
  * DMA callback indicating that the buffer is ready.
  *
  * @param buffer Microphone buffer to be processed.
@@ -107,8 +123,40 @@ static void voice_process_data(void);
 static void mic_buffer_ready(const void *buffer, uint32_t n_frames);
 
 /***************************************************************************//**
+ * JSON send configuration timeout callback.
+ ******************************************************************************/
+static void send_config_callback(sl_sleeptimer_timer_handle_t *handle, void *data);
+
+/***************************************************************************//**
  * Sends JSON configuration over iostream.
  ******************************************************************************/
+static void send_json_config_voice(void);
+
+// -----------------------------------------------------------------------------
+// Public function definitions
+
+/***************************************************************************//**
+ * Setup periodic timer for sending configuration messages.
+ ******************************************************************************/
+void app_config_mic(void)
+{
+  /* Set up periodic JSON configuration timer. */
+  sl_sleeptimer_start_periodic_timer_ms(&send_config_timer_audio, JSON_TEMPLATE_INTERVAL_MS, send_config_callback, NULL, 0, 0);
+
+  // Send initial JSON config message
+  send_json_config_voice();
+}
+
+/***************************************************************************//**
+ * JSON configuration message ticking function.
+ ******************************************************************************/
+void app_config_process_action_audio(void)
+{
+  if (send_config_flag == true) {
+    send_json_config_voice();
+    send_config_flag = false;
+  }
+}
 
 /***************************************************************************//**
  * Initialize internal variables.
@@ -187,7 +235,14 @@ void app_voice_stop(void)
  ******************************************************************************/
 void app_voice_process_action(void)
 {
-voice_process_data();
+  if (event_process) {
+    event_process = false;
+    voice_process_data();
+  }
+  if (event_send) {
+    event_send = false;
+    voice_send_data();
+  }
 }
 
 /***************************************************************************//**
@@ -225,6 +280,7 @@ void app_voice_set_filter_enable(bool status)
 
 static void voice_process_data(void)
 {
+  cb_err_code_t err;
   int16_t buffer[MIC_SAMPLE_BUFFER_SIZE];
   uint32_t sample_count = frames * voice_config.channels;
 
@@ -237,10 +293,35 @@ static void voice_process_data(void)
     // Filter samples.
     fil_filter(&filter, buffer, buffer, frames);
   }
-  sml_recognition_run(buffer, MIC_SAMPLE_BUFFER_SIZE, voice_config.channels, 2);
 
+  err = cb_push_buff(&circular_buffer, buffer, sample_count * MIC_SAMPLE_SIZE);
+
+  sl_app_assert(err == cb_err_ok,
+                "[E: 0x%04x] Circular buffer push failed\n",
+                (int)err);
+
+  event_send = true;
 }
 
+static void voice_send_data(void)
+{
+  cb_err_code_t cb_error;
+  uint8_t buffer[MIC_SEND_BUFFER_SIZE];
+
+  cb_error = cb_pop_buff(&circular_buffer, buffer, MIC_SEND_BUFFER_SIZE);
+
+  if ( cb_error == cb_err_ok ) {
+    voice_transmit(buffer, MIC_SEND_BUFFER_SIZE);
+    event_send = true;
+  }
+}
+
+#include "ssi_comms.h"
+static void voice_transmit(uint8_t *buffer, uint32_t size)
+{
+  // Send data using SSI v2 on default Channel
+  ssiv2_publish_sensor_data(SSI_CHANNEL_AUDIO, buffer, size);
+}
 
 static void mic_buffer_ready(const void *buffer, uint32_t n_frames)
 {
@@ -249,4 +330,27 @@ static void mic_buffer_ready(const void *buffer, uint32_t n_frames)
   event_process = true;
 }
 
+static void send_config_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
+{
+  (void)handle;
+  (void)data;
+  send_config_flag = true;
+}
+
+static void send_json_config_voice()
+{
+#if (SSI_JSON_CONFIG_VERSION == 1)
+  printf("{\"sample_rate\":%d,"
+      "\"column_location\":{"
+      "\"Microphone\":0},"
+      "\"samples_per_packet\":%d}\n", SR2FS(VOICE_SAMPLE_RATE_DEFAULT), MIC_SAMPLE_BUFFER_SIZE);
+#elif (SSI_JSON_CONFIG_VERSION == 2)
+  printf("{\"version\":%d, \"sample_rate\":%d,"
+      "\"column_location\":{"
+      "\"Microphone\":0},"
+      "\"samples_per_packet\":%d}\n", SSI_JSON_CONFIG_VERSION, SR2FS(VOICE_SAMPLE_RATE_DEFAULT), MIC_SAMPLE_BUFFER_SIZE);
+#else
+#error "Unknown SSI_JSON_CONFIG_VERSION"
+#endif
+}
 
