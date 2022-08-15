@@ -1,5 +1,5 @@
 
-# SensiML IMU and Microphone Recognition Example #
+# SensiML IMU and Microphone Capture Example #
 
 ## Summary ##
 
