@@ -48,21 +48,12 @@
 // -----------------------------------------------------------------------------
 // Private macros
 
-#define VOICE_SAMPLE_RATE_DEFAULT sr_16k
-#define VOICE_CHANNELS_DEFAULT    1
-#define VOICE_FILTER_DEFAULT      true
-#define VOICE_ENCODE_DEFAULT      false
 
 #define MIC_CHANNELS_MAX        2
 #define MIC_SAMPLE_SIZE         2
-#define MIC_SAMPLE_BUFFER_SIZE  112
 #define MIC_SEND_BUFFER_SIZE    (MIC_SAMPLE_BUFFER_SIZE * MIC_SAMPLE_SIZE)
 #define CIRCULAR_BUFFER_SIZE    (MIC_SAMPLE_BUFFER_SIZE * 10)
 
-#define SR2FS(sr)               ((sr) * 1000)
-
-/** Time (in ms) between periodic JSON template messages. */
-#define JSON_TEMPLATE_INTERVAL_MS      1000
 
 // -----------------------------------------------------------------------------
 // Private type definitions
@@ -87,8 +78,6 @@ static uint32_t frames;
 static bool event_process = false;
 static bool event_send = false;
 
-static bool send_config_flag = true;
-sl_sleeptimer_timer_handle_t send_config_timer_audio;
 
 // -----------------------------------------------------------------------------
 // Private function declarations
@@ -122,41 +111,7 @@ static void voice_transmit(uint8_t *buffer, uint32_t size);
  ******************************************************************************/
 static void mic_buffer_ready(const void *buffer, uint32_t n_frames);
 
-/***************************************************************************//**
- * JSON send configuration timeout callback.
- ******************************************************************************/
-static void send_config_callback(sl_sleeptimer_timer_handle_t *handle, void *data);
 
-/***************************************************************************//**
- * Sends JSON configuration over iostream.
- ******************************************************************************/
-static void send_json_config_voice(void);
-
-// -----------------------------------------------------------------------------
-// Public function definitions
-
-/***************************************************************************//**
- * Setup periodic timer for sending configuration messages.
- ******************************************************************************/
-void app_config_mic(void)
-{
-  /* Set up periodic JSON configuration timer. */
-  sl_sleeptimer_start_periodic_timer_ms(&send_config_timer_audio, JSON_TEMPLATE_INTERVAL_MS, send_config_callback, NULL, 0, 0);
-
-  // Send initial JSON config message
-  send_json_config_voice();
-}
-
-/***************************************************************************//**
- * JSON configuration message ticking function.
- ******************************************************************************/
-void app_config_process_action_audio(void)
-{
-  if (send_config_flag == true) {
-    send_json_config_voice();
-    send_config_flag = false;
-  }
-}
 
 /***************************************************************************//**
  * Initialize internal variables.
@@ -329,28 +284,3 @@ static void mic_buffer_ready(const void *buffer, uint32_t n_frames)
   frames = n_frames;
   event_process = true;
 }
-
-static void send_config_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
-{
-  (void)handle;
-  (void)data;
-  send_config_flag = true;
-}
-
-static void send_json_config_voice()
-{
-#if (SSI_JSON_CONFIG_VERSION == 1)
-  printf("{\"sample_rate\":%d,"
-      "\"column_location\":{"
-      "\"Microphone\":0},"
-      "\"samples_per_packet\":%d}\n", SR2FS(VOICE_SAMPLE_RATE_DEFAULT), MIC_SAMPLE_BUFFER_SIZE);
-#elif (SSI_JSON_CONFIG_VERSION == 2)
-  printf("{\"version\":%d, \"sample_rate\":%d,"
-      "\"column_location\":{"
-      "\"Microphone\":0},"
-      "\"samples_per_packet\":%d}\n", SSI_JSON_CONFIG_VERSION, SR2FS(VOICE_SAMPLE_RATE_DEFAULT), MIC_SAMPLE_BUFFER_SIZE);
-#else
-#error "Unknown SSI_JSON_CONFIG_VERSION"
-#endif
-}
-

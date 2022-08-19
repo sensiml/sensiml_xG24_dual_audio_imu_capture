@@ -49,7 +49,7 @@
 #include "ssi_comms.h"
 
 extern volatile bool config_received;
-extern sl_sleeptimer_timer_handle_t send_config_timer_audio, send_config_timer_imu;
+extern sl_sleeptimer_timer_handle_t send_config_timer;
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
@@ -119,7 +119,7 @@ void app_iostream_usart_process_action(void)
       // Start sampling
       app_voice_start();
 
-      sl_sleeptimer_stop_timer(&send_config_timer_imu);
+      sl_sleeptimer_stop_timer(&send_config_timer);
 
       config_received = true;
 
@@ -133,7 +133,7 @@ void app_iostream_usart_process_action(void)
               app_voice_stop();
 
               config_received = false;
-              app_config_mic();
+              app_config_json();
               // Turn off LED0 (red) to indicate open connection; data transfer
               app_led_init();
             }

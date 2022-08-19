@@ -43,13 +43,11 @@
 #include "sl_sleeptimer.h"
 #include "ssi_comms.h"
 
-/** Time (in ms) between periodic JSON template messages. */
-#define JSON_TEMPLATE_INTERVAL_MS      1000
+
 
 /** Samples per packet to send out
  * NOTE: a "Sample" when using ACC and Gyro is 12 bytes, or all 6 axes
  * */
-#define APP_IMU_SAMPLES_PER_PACKET     10
 #define APP_IMU_NUMBER_SENSORS         1
 #define APP_IMU_AXES_PER_SENSOR        3
 #define APP_IMU_BYTES_TO_WRITE (APP_IMU_SAMPLES_PER_PACKET * APP_IMU_AXES_PER_SENSOR * APP_IMU_NUMBER_SENSORS * sizeof(int16_t) )
@@ -58,44 +56,12 @@
  ***************************  LOCAL VARIABLES   ********************************
  ******************************************************************************/
 static volatile bool send_config_flag = true;
-sl_sleeptimer_timer_handle_t send_config_timer_imu;
-
 /*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 
 static float get_acc_gyro_odr(void);
 
-static void send_config_callback(sl_sleeptimer_timer_handle_t *handle, void *data);
-
-static void send_json_config_imu(void);
-
-/*******************************************************************************
- **************************   GLOBAL FUNCTIONS   *******************************
- ******************************************************************************/
-
-/***************************************************************************//**
- * Setup periodic timer for sending configuration messages.
- ******************************************************************************/
-void app_config_imu(void)
-{
-  /* Set up periodic JSON configuration timer. */
-  sl_sleeptimer_start_periodic_timer_ms(&send_config_timer_imu, JSON_TEMPLATE_INTERVAL_MS, send_config_callback, NULL, 0, 0);
-
-  // Send initial JSON config message
-  send_json_config_imu();
-}
-
-/***************************************************************************//**
- * JSON configuration message ticking function.
- ******************************************************************************/
-void app_config_process_action_imu(void)
-{
-  if (send_config_flag == true) {
-    send_json_config_imu();
-    send_config_flag = false;
-  }
-}
 
 /***************************************************************************//**
  * IMU ticking function.
@@ -208,44 +174,4 @@ static float get_acc_gyro_odr(void)
         default:
             return 102.3;
     }
-}
-
-/***************************************************************************//**
- * JSON send configuration timeout callback.
- ******************************************************************************/
-static void send_config_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
-{
-  (void)handle;
-  (void)data;
-  send_config_flag = true;
-}
-
-/***************************************************************************//**
- * Sends JSON configuration over iostream.
- ******************************************************************************/
-static void send_json_config_imu()
-{
-#if (SSI_JSON_CONFIG_VERSION == 1)
-  printf("{\"sample_rate\":%3.0f,"
-    "\"samples_per_packet\":%d,"
-    "\"column_location\":{"
-    "\"AccelerometerX\":0,"
-    "\"AccelerometerY\":1,"
-    "\"AccelerometerZ\":2,"
-    "\"GyroscopeX\":3,"
-    "\"GyroscopeY\":4,"
-    "\"GyroscopeZ\":5}}\n", get_acc_gyro_odr(), APP_IMU_SAMPLES_PER_PACKET);
-#elif (SSI_JSON_CONFIG_VERSION == 2)
-  printf("{\"version\":%d, \"sample_rate\":%3.0f,"
-    "\"samples_per_packet\":%d,"
-    "\"column_location\":{"
-    "\"AccelerometerX\":0,"
-    "\"AccelerometerY\":1,"
-    "\"AccelerometerZ\":2,"
-    "\"GyroscopeX\":3,"
-    "\"GyroscopeY\":4,"
-    "\"GyroscopeZ\":5}}\n", SSI_JSON_CONFIG_VERSION, get_acc_gyro_odr(), APP_IMU_SAMPLES_PER_PACKET);
-#else
-#error "Unknown SSI_JSON_CONFIG_VERSION"
-#endif
 }

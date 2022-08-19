@@ -38,28 +38,11 @@
 #ifndef APP_SENSOR_IMU_H
 #define APP_SENSOR_IMU_H
 
-#include <stdbool.h>
+#include "app_config.h"
 #include "sl_status.h"
 
-// IMU ODR settings. Note: Gyroscope and Accel are linked.
-typedef enum
-{
-    // Sample Rate 0:4.4Hz, 1:17.6Hz, 2:35.2Hz, 3:48.9Hz, 4:70.3Hz, 5:102.3HZ...
-    ACCEL_GYRO_ODR_4p4HZ   = 0,
-    ACCEL_GYRO_ODR_17p6HZ  = 1,
-    ACCEL_GYRO_ODR_35p2HZ  = 2,
-    ACCEL_GYRO_ODR_48p9HZ  = 3,
-    ACCEL_GYRO_ODR_70p3HZ  = 4,
-    ACCEL_GYRO_ODR_102p3HZ = 5,
-    ACCEL_GYRO_ODR_140p6HZ = 6,
-    ACCEL_GYRO_ODR_187p5HZ = 7,
-    ACCEL_GYRO_ODR_281p3HZ = 8,
-    ACCEL_GYRO_ODR_562p5HZ = 9,
-} accel_gyro_odr_t;
 
-// Default sample rates.
-//#define ACCEL_GYRO_DEFAULT_ODR ACCEL_GYRO_ODR_102p3HZ
-#define ACCEL_GYRO_DEFAULT_ODR ACCEL_GYRO_ODR_102p3HZ
+
 /**************************************************************************//**
  * Configure periodic timer and send configuration information
  *****************************************************************************/

@@ -38,6 +38,8 @@
 #include "app_iostream_usart.h"
 #include "app_voice.h"
 #include "app_led.h"
+#include "app_config.h"
+
 
 volatile bool config_received = false;
 
@@ -45,8 +47,7 @@ void app_init(void)
 {
   app_iostream_usart_init();
 
-  app_config_mic();
-  app_config_imu();
+  app_config_json();
 
   app_led_init();
 }
@@ -55,8 +56,7 @@ void app_process_action(void)
 {
   // Send JSON configuration and wait to receive "connect" command
   if (!config_received) {
-    app_config_process_action_imu();
-    app_config_process_action_audio();
+    app_config_process_action_config();
     app_iostream_usart_process_action();
   } else { // once connected, no longer necessary to listen for commands
       app_iostream_usart_process_action();
