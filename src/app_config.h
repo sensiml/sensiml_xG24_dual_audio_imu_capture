@@ -27,6 +27,8 @@ typedef enum {
 } sample_rate_t;
 
 #define SSI_CHANNEL_AUDIO          (1)
+#define SSI_CHANNEL_IMU            (2)
+
 #define VOICE_SAMPLE_RATE_DEFAULT sr_16k
 #define VOICE_CHANNELS_DEFAULT    1
 #define VOICE_FILTER_DEFAULT      true
@@ -37,9 +39,10 @@ typedef enum {
 // Default sample rates.
 //#define ACCEL_GYRO_DEFAULT_ODR ACCEL_GYRO_ODR_102p3HZ
 #define ACCEL_GYRO_DEFAULT_ODR ACCEL_GYRO_ODR_102p3HZ
-#define APP_IMU_SAMPLES_PER_PACKET     10
-#define SSI_CHANNEL_IMU            (2)
 #define ACCEL_GYRO_ODR 102
+#define APP_IMU_SAMPLES_PER_PACKET     10
+
+
 
 /** Time (in ms) between periodic JSON template messages. */
 #define JSON_TEMPLATE_INTERVAL_MS      1000

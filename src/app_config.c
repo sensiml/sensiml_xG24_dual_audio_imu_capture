@@ -55,9 +55,6 @@ static void send_json_config()
     "\"column_location\":{"
     "\"AccelerometerX\":0,"
     "\"AccelerometerY\":1,"
-    "\"AccelerometerZ\":2,"
-    "\"GyroscopeX\":3,"
-    "\"GyroscopeY\":4,"
-    "\"GyroscopeZ\":5}}]}\n",
+    "\"AccelerometerZ\":2}}]}\n",
      3, SSI_CHANNEL_AUDIO, SR2FS(VOICE_SAMPLE_RATE_DEFAULT),  MIC_SAMPLE_BUFFER_SIZE, ACCEL_GYRO_ODR, SSI_CHANNEL_IMU, APP_IMU_SAMPLES_PER_PACKET);\
 }

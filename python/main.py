@@ -1,127 +1,208 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import serial
+import serial.tools.list_ports
 import soundfile as sf
-import numpy as np
 import time
+import json
+from collections import namedtuple
 
-data_size = 0
-channel = -1
-senquence_number = -1
-data_file_1 = 'channel1.csv'
-data_file_2 = 'channel2.csv'
-channel1_data = []
-channel2_data = []
-
-def init_files():
-    file1 = open(data_file_1, "w")
-    file1.write("channel_0\n")
-    file1.close()
-    file2 = open(data_file_2, "w")
-    file2.write("AccelerometerX,AccelerometerY,AccelerometerZ\n")
-    file2.close()
-
-def append_channel_1(data):
-
-    with open(data_file_1, "a") as file1:
-        for item in data:
-            file1.write(str(item)+"\n")
-
-    sf.write('channel1.wav', np.array(data, dtype=np.int16), 16000)
-
-    return len(data)
-
-def append_channel_2(data):
-    with open(data_file_2, "a") as file2:
-        for i in range(len(data) // 3):
-         file2.write(str(data[i*3])+","+str(data[(i*3)+1])+","+str(data[(i*3)+2])+"\n")
-
-    return len(data)//3
+Header = namedtuple("Header", ["data_size", "rsvd", "channel", "sequence_number"])
 
 
-def get_header(s):
-    global data_size
-    global channel
-    # Get size
-    byte_array = s.read() + s.read()
+def get_config(port: str, baud_rate: int):
+    with serial.Serial(port, baud_rate, timeout=1) as ser:
+        ser.write(b"disconnect")
+        time.sleep(1)
+        ser.readline()
+        value = ser.readline().decode("ascii")
 
-    data_size = int.from_bytes(byte_array, 'little')
-    # get rsvd
-    byte_array = s.read()
-    rsvd = int.from_bytes(byte_array, 'little')
-
-    byte_array = s.read()
-    channel = int.from_bytes(byte_array, 'little')
-
-    # read sequence number
-    byte_array = s.read() + s.read() + s.read() + s.read()
-
-    sequence_number = int.from_bytes(byte_array, 'little')
-
-def get_data(s):
-
-    global channel1_data;
-    global channel2_data;
-    for i in range((data_size - 6) // 2):
-        byte_array = s.read() + s.read()
-        data_point = int.from_bytes(byte_array, 'little',signed="True")
-        if channel == 1:
-            channel1_data.append(data_point)
-        if channel == 2:
-            channel2_data.append(data_point)
-
-def find_sync(s):
-    found_sync = False
-    while not found_sync:
-        char_in = s.read()
-        if char_in == b'\xff':
-            found_sync = True
+        return json.loads(value)
 
 
+def get_port_info():
+    ports = serial.tools.list_ports.comports()
 
-def get_packets(s):
-    find_sync(s)
+    port_list = []
+    for index, (port, desc, hwid) in enumerate(sorted(ports)):
+        port_list.append({"id": index, "name": desc, "device_id": port})
 
-    get_header(s)
-
-    get_data(s)
-    data_byte = s.read()
-    checksum = int.from_bytes(data_byte, 'little')
-
-def startup(record_time, port, baud_rate):
-    with serial.Serial(port, baud_rate, timeout=1) as s:
-        s.reset_input_buffer()
-        #print('sending connect')
-        s.write(b"connect")
-        start = time.time()
-        #print("record time is ", record_time, 'seconds')
-        while record_time > time.time() - start:
-            get_packets(s)
-        record_time= time.time()- start
+    return port_list
 
 
-        s.write(b"disconnect")
+class RecordSensor(object):
+    """
+    def append_channel_1(data):
 
-        return record_time
+        with open(data_file_1, "a") as file1:
+            for item in data:
+                file1.write(str(item) + "\n")
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    COM_PORT = "COM9"
+        sf.write("channel1.wav", np.array(data, dtype=np.int16), 16000)
+
+        return len(data)
+    """
+
+    def __init__(self, file_prefix: str, port: str, baud_rate: int):
+        self.file_prefix = file_prefix
+        self.channel_data = []
+        self.config = get_config(port, baud_rate)
+        self.data = {}
+
+    def write_buffer(self, channel: int):
+
+        num_cols = self.data[channel]["num_columns"]
+        data = self.data[channel]["data_buffer"]
+        print(
+            "writing channel",
+            channel,
+            "data size",
+            len(data),
+            "to",
+            self.data[channel]["filename"],
+        )
+        with open(self.data[channel]["filename"], "a") as fid:
+
+            for i in range(len(data) // num_cols):
+                fid.write(
+                    ",".join(
+                        [str(data[i * num_cols + num_cols]) for i in range(num_cols)]
+                    )
+                    + "\n"
+                )
+
+        self.data[channel]["data_buffer"] = []
+
+        return len(data) // num_cols
+
+    def write_buffers(self):
+        data_size = {}
+        for channel in self.data:
+            data_size[channel] = self.write_buffer(channel)
+
+        return data_size
+
+    @staticmethod
+    def get_packet_header(ser):
+
+        # Get size
+        byte_array = ser.read() + ser.read()
+
+        data_size = int.from_bytes(byte_array, "little")
+
+        # get rsvd
+        byte_array = ser.read()
+        rsvd = int.from_bytes(byte_array, "little")
+
+        byte_array = ser.read()
+        channel = int.from_bytes(byte_array, "little")
+
+        # read sequence number
+        byte_array = ser.read() + ser.read() + ser.read() + ser.read()
+
+        sequence_number = int.from_bytes(byte_array, "little")
+
+        return Header(data_size, rsvd, channel, sequence_number)
+
+    def get_packet_data(self, ser: serial, header: Header):
+
+        for i in range((header.data_size - 6) // 2):
+            byte_array = ser.read() + ser.read()
+            data_point = int.from_bytes(byte_array, "little", signed="True")
+            self.data[header.channel]["data_buffer"].append(data_point)
+
+    def find_sync(self, ser: serial):
+        found_sync = False
+        while not found_sync:
+            char_in = ser.read()
+            if char_in == b"\xff":
+                found_sync = True
+
+    def get_packets(self, ser: serial):
+        self.find_sync(ser)
+        header = self.get_packet_header(ser)
+        self.get_packet_data(ser, header)
+        data_byte = ser.read()
+        checksum = int.from_bytes(data_byte, "little")
+
+    def connect(self, record_time: int, port: str, baud_rate: int):
+        with serial.Serial(port, baud_rate, timeout=1) as ser:
+            ser.reset_input_buffer()
+            print("Connecting")
+            ser.write(b"connect")
+            start = time.time()
+
+            print("Recording for", record_time, "seconds")
+            print(0)
+            curr_time = 0
+            while record_time > time.time() - start:
+                if int(time.time() - start) != curr_time:
+                    curr_time = int(time.time() - start)
+                    if curr_time % 5 == 0:
+                        print(curr_time)
+
+                self.get_packets(ser)
+            print(curr_time)
+            record_time = time.time() - start
+
+            ser.write(b"disconnect")
+
+            return record_time
+
+    def init(self):
+        for sensor_config in self.config["sensors"]:
+            filename = "{prefix}_channel{index}.csv".format(
+                prefix=self.file_prefix, index=sensor_config["channel"]
+            )
+            with open(filename, "w") as out:
+                out.write(",".join(sensor_config["column_location"].keys()))
+
+            self.data[sensor_config["channel"]] = {
+                "filename": filename,
+                "data_buffer": [],
+                "num_columns": len(sensor_config["column_location"]),
+                "sample_rate": sensor_config["sample_rate"],
+            }
+
+
+def summarize_recording(data_sizes, recorder):
+    for channel in data_sizes.keys():
+        print(
+            "channel",
+            channel,
+            "record_time",
+            record_time,
+            "recorded",
+            int(recorded_time),
+            "expected",
+            record_time * recorder.data[channel]["sample_rate"],
+            "actual",
+            data_sizes[channel],
+            "calculated",
+            int(data_sizes[channel] / recorded_time),
+        )
+
+
+if __name__ == "__main__":
+
+    COM_PORT = "COM4"
+    RECORD_TIME = 10
     BAUD_RATE = 921600
-    RECORD_TIME= 60
-    AUDIO_SAMPLE_RATE=16000
-    IMU_SAMPLE_RATE= 281.3  #really 111.11
-    init_files()
-    #for record_time in  range(1,20,5):
-    record_time = RECORD_TIME;
-    channel1_data = []
-    channel2_data = []
-    recorded_time =   startup(record_time, COM_PORT, BAUD_RATE)
-    data_size  = append_channel_1(channel1_data)
-    print("record_time", record_time, "recorded", int(recorded_time), "expected", record_time * AUDIO_SAMPLE_RATE,'actual', data_size,'calculated',int(data_size/recorded_time))
-    data_size =  append_channel_2(channel2_data)
-    print("record_time", record_time,"recorded", int(recorded_time), "expected", record_time * IMU_SAMPLE_RATE, 'actual', data_size,'calculated',data_size/recorded_time)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    if not COM_PORT:
+        port_list = get_port_info()
+        COM_PORT = port_list[0]["device_id"]
+
+    config = get_config(COM_PORT, BAUD_RATE)
+
+    print("Retrieved Config")
+    print(json.dumps(config, indent=4, sort_keys=True))
+
+    filenames = []
+
+    recorder = RecordSensor("test", COM_PORT, BAUD_RATE)
+    recorder.init()
+
+    record_time = RECORD_TIME
+    recorded_time = recorder.connect(record_time, COM_PORT, BAUD_RATE)
+    data_sizes = recorder.write_buffers()
+
+    summarize_recording(data_sizes, recorder)

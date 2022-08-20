@@ -44,6 +44,7 @@
 #include "sl_mic.h"
 #include "sl_sleeptimer.h"
 #include "sl_iostream.h"
+#include "ssi_comms.h"
 
 // -----------------------------------------------------------------------------
 // Private macros
@@ -271,7 +272,7 @@ static void voice_send_data(void)
   }
 }
 
-#include "ssi_comms.h"
+
 static void voice_transmit(uint8_t *buffer, uint32_t size)
 {
   // Send data using SSI v2 on default Channel
