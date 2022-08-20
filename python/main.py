@@ -2,7 +2,9 @@ import serial
 import serial.tools.list_ports
 import soundfile as sf
 import time
+import numpy as np
 import json
+import os
 from collections import namedtuple
 
 Header = namedtuple("Header", ["data_size", "rsvd", "channel", "sequence_number"])
@@ -29,18 +31,6 @@ def get_port_info():
 
 
 class RecordSensor(object):
-    """
-    def append_channel_1(data):
-
-        with open(data_file_1, "a") as file1:
-            for item in data:
-                file1.write(str(item) + "\n")
-
-        sf.write("channel1.wav", np.array(data, dtype=np.int16), 16000)
-
-        return len(data)
-    """
-
     def __init__(self, file_prefix: str, port: str, baud_rate: int):
         self.file_prefix = file_prefix
         self.channel_data = []
@@ -57,17 +47,23 @@ class RecordSensor(object):
             "data size",
             len(data),
             "to",
-            self.data[channel]["filename"],
+            self.data[channel]["filename"] + ".cdv",
         )
-        with open(self.data[channel]["filename"], "a") as fid:
+        with open(self.data[channel]["filename"] + ".csv", "w") as out:
+            out.write(",".join(self.data[channel]["columns"].keys()) + "\n")
 
-            for i in range(len(data) // num_cols):
-                fid.write(
-                    ",".join(
-                        [str(data[i * num_cols + num_cols]) for i in range(num_cols)]
-                    )
+            for index in range(len(data) // num_cols):
+                out.write(
+                    ",".join([str(data[index * num_cols + i]) for i in range(num_cols)])
                     + "\n"
                 )
+
+        if self.data[channel]["columns"].get("Microphone") == 0:
+            sf.write(
+                self.data[channel]["filename"] + ".wav",
+                np.array(data, dtype=np.int16),
+                self.data[channel]["sample_rate"],
+            )
 
         self.data[channel]["data_buffer"] = []
 
@@ -141,29 +137,40 @@ class RecordSensor(object):
 
                 self.get_packets(ser)
             print(curr_time)
-            record_time = time.time() - start
+            recorded_time = time.time() - start
 
             ser.write(b"disconnect")
 
-            return record_time
+            return recorded_time
 
     def init(self):
         for sensor_config in self.config["sensors"]:
-            filename = "{prefix}_channel{index}.csv".format(
+            filename = "{prefix}_channel{index}".format(
                 prefix=self.file_prefix, index=sensor_config["channel"]
             )
-            with open(filename, "w") as out:
-                out.write(",".join(sensor_config["column_location"].keys()))
+
+            filename += get_recording_index(filename)
 
             self.data[sensor_config["channel"]] = {
                 "filename": filename,
                 "data_buffer": [],
                 "num_columns": len(sensor_config["column_location"]),
                 "sample_rate": sensor_config["sample_rate"],
+                "columns": sensor_config["column_location"],
             }
 
 
-def summarize_recording(data_sizes, recorder):
+def get_recording_index(filename):
+    suffix = "_0"
+    counter = 1
+    while os.path.exists(filename + suffix + ".csv"):
+        suffix = f"_{counter}"
+        counter += 1
+
+    return suffix
+
+
+def summarize_recording(record_time, data_sizes, recorder):
     for channel in data_sizes.keys():
         print(
             "channel",
@@ -183,9 +190,10 @@ def summarize_recording(data_sizes, recorder):
 
 if __name__ == "__main__":
 
-    COM_PORT = "COM4"
+    COM_PORT = ""  # "COM4"
     RECORD_TIME = 10
     BAUD_RATE = 921600
+    FILE_PREFIX = "record_knocking"
 
     if not COM_PORT:
         port_list = get_port_info()
@@ -198,11 +206,11 @@ if __name__ == "__main__":
 
     filenames = []
 
-    recorder = RecordSensor("test", COM_PORT, BAUD_RATE)
+    recorder = RecordSensor(FILE_PREFIX, COM_PORT, BAUD_RATE)
     recorder.init()
 
-    record_time = RECORD_TIME
-    recorded_time = recorder.connect(record_time, COM_PORT, BAUD_RATE)
+    recorded_time = recorder.connect(RECORD_TIME, COM_PORT, BAUD_RATE)
+
     data_sizes = recorder.write_buffers()
 
-    summarize_recording(data_sizes, recorder)
+    summarize_recording(recorded_time, data_sizes, recorder)
