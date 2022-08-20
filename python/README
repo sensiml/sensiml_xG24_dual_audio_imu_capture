@@ -1,0 +1,10 @@
+
+
+# install the supported packages
+
+pip install -r requirements.txt
+
+
+# record data
+
+python3 record.py

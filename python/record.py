@@ -143,13 +143,19 @@ class RecordSensor(object):
 
             return recorded_time
 
-    def init(self):
+    def init(self, filename_map=None, initial_index=0):
         for sensor_config in self.config["sensors"]:
-            filename = "{prefix}_channel{index}".format(
-                prefix=self.file_prefix, index=sensor_config["channel"]
+
+            if filename_map and filename_map.get(sensor_config["channel"]):
+                channel_name = filename_map.get(sensor_config["channel"])
+            else:
+                channel_name = "channel{index}".format(index=sensor_config["channel"])
+
+            filename = "{prefix}_{channel_name}".format(
+                prefix=self.file_prefix, channel_name=channel_name
             )
 
-            filename += get_recording_index(filename)
+            filename += get_recording_index(filename, initial_index=initial_index)
 
             self.data[sensor_config["channel"]] = {
                 "filename": filename,
@@ -160,9 +166,9 @@ class RecordSensor(object):
             }
 
 
-def get_recording_index(filename):
-    suffix = "_0"
-    counter = 1
+def get_recording_index(filename, initial_index=0):
+    suffix = f"_{initial_index}"
+    counter = initial_index + 1
     while os.path.exists(filename + suffix + ".csv"):
         suffix = f"_{counter}"
         counter += 1
@@ -191,9 +197,11 @@ def summarize_recording(record_time, data_sizes, recorder):
 if __name__ == "__main__":
 
     COM_PORT = ""  # "COM4"
-    RECORD_TIME = 10
+    RECORD_TIME = 10  # Seconds
     BAUD_RATE = 921600
-    FILE_PREFIX = "record_knocking"
+    FILE_PREFIX = "record_session"
+    FILENAME_MAP = {1: "audio", 2: "imu"}
+    INITIAL_INDEX = 20
 
     if not COM_PORT:
         port_list = get_port_info()
@@ -207,7 +215,7 @@ if __name__ == "__main__":
     filenames = []
 
     recorder = RecordSensor(FILE_PREFIX, COM_PORT, BAUD_RATE)
-    recorder.init()
+    recorder.init(filename_map=FILENAME_MAP, initial_index=INITIAL_INDEX)
 
     recorded_time = recorder.connect(RECORD_TIME, COM_PORT, BAUD_RATE)
 
