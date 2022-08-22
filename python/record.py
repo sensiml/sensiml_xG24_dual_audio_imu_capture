@@ -7,6 +7,7 @@ import json
 import os
 from collections import namedtuple
 
+6
 Header = namedtuple("Header", ["data_size", "rsvd", "channel", "sequence_number"])
 
 
@@ -47,7 +48,7 @@ class RecordSensor(object):
             "data size",
             len(data),
             "to",
-            self.data[channel]["filename"] + ".cdv",
+            self.data[channel]["filename"] + ".csv",
         )
         with open(self.data[channel]["filename"] + ".csv", "w") as out:
             out.write(",".join(self.data[channel]["columns"].keys()) + "\n")
@@ -201,7 +202,7 @@ if __name__ == "__main__":
     BAUD_RATE = 921600
     FILE_PREFIX = "record_session"
     FILENAME_MAP = {1: "audio", 2: "imu"}
-    INITIAL_INDEX = 20
+    INITIAL_INDEX = 21
 
     if not COM_PORT:
         port_list = get_port_info()
