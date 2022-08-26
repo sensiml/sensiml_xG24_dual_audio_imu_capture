@@ -1,5 +1,6 @@
 #include "sl_sleeptimer.h"
 #include "app_config.h"
+#include "stdio.h"
 sl_sleeptimer_timer_handle_t send_config_timer;
 static bool send_config_flag = true;
 
@@ -46,7 +47,7 @@ void app_config_process_action_config(void)
 
 static void send_json_config()
 {
-  printf("{\"version\":%d, \"sensors\": [{\"channel\":%d,\"sample_rate\":%d,"
+  printf("{\"version\":%d, \"time_resolution_ms\":%d, \"sensors\": [{\"channel\":%d,\"sample_rate\":%d,"
       "\"column_location\":{"
       "\"Microphone\":0},"
       "\"samples_per_packet\":%d},"
@@ -56,5 +57,5 @@ static void send_json_config()
     "\"AccelerometerX\":0,"
     "\"AccelerometerY\":1,"
     "\"AccelerometerZ\":2}}]}\n",
-     3, SSI_CHANNEL_AUDIO, SR2FS(VOICE_SAMPLE_RATE_DEFAULT),  MIC_SAMPLE_BUFFER_SIZE, ACCEL_GYRO_ODR, SSI_CHANNEL_IMU, APP_IMU_SAMPLES_PER_PACKET);\
+     3,TIMER_RESOLUTION_MS, SSI_CHANNEL_AUDIO, SR2FS(VOICE_SAMPLE_RATE_DEFAULT),  MIC_SAMPLE_BUFFER_SIZE, ACCEL_GYRO_ODR, SSI_CHANNEL_IMU, APP_IMU_SAMPLES_PER_PACKET);\
 }

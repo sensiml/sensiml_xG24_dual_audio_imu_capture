@@ -47,6 +47,8 @@ typedef enum {
 /** Time (in ms) between periodic JSON template messages. */
 #define JSON_TEMPLATE_INTERVAL_MS      1000
 
+#define TIMER_RESOLUTION_MS            10
+
 void app_config_json(void);
 
 #endif //__APP_CONFIG_H

@@ -20,7 +20,8 @@
 #include "ssi_comms.h"
 #include "sl_iostream.h"
 
-static uint32_t ssi_conn_seqnum[SSI_MAX_CHANNELS] = {0};
+static uint8_t ssi_conn_seqnum[SSI_MAX_CHANNELS] = {0};
+extern uint32_t time_stamp;
 void ssi_seqnum_init(uint8_t channel)
 {
     if (channel >= SSI_MAX_CHANNELS)
@@ -64,9 +65,9 @@ void ssiv2_publish_sensor_data(uint8_t channel, uint8_t* buffer, int size)
 {
     uint8_t ssiv2header[SSI_HEADER_SIZE];
     uint8_t sync = SSI_SYNC_DATA;
-    uint8_t rsvd = 0;
+    uint8_t rsvd = ssi_seqnum_update(channel);
     uint16_t u16len = (size + 6);
-    uint32_t seqnum = ssi_seqnum_update(channel);
+    uint32_t seqnum = time_stamp;
     uint8_t crc8 = 0;
 
     ssiv2header[0] = sync;
