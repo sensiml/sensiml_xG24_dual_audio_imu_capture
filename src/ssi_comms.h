@@ -25,8 +25,7 @@
 #define SSI_HEADER_SIZE            (9)     ///< SSI v2 header size in bytes
 #define SSI_MAX_CHANNELS           (4)
 #define SSI_CHANNEL_DEFAULT        (0)
-#define SSI_CHANNEL_AUDIO          (1)
-#define SSI_CHANNEL_IMU            (2)
+
 
 extern void ssi_seqnum_init(uint8_t channel);
 extern void ssi_seqnum_reset(uint8_t channel);

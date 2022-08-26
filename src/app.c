@@ -38,31 +38,46 @@
 #include "app_iostream_usart.h"
 #include "app_voice.h"
 #include "app_led.h"
+#include "app_config.h"
+#include "sl_sleeptimer.h"
+#include "em_gpio.h"
 
 volatile bool config_received = false;
+sl_sleeptimer_timer_handle_t time_stamp_timer;
+uint32_t time_stamp = 0;
 
-void app_init(void)
+static void on_timeout (sl_sleeptimer_timer_handle_t *handle, void *data)
 {
-  app_iostream_usart_init();
+  time_stamp++;
+}
+void app_init (void)
+{
 
-  app_config_mic();
-  app_config_imu();
+  sl_sleeptimer_start_periodic_timer_ms (&time_stamp_timer,
+  TIMER_RESOLUTION_MS,
+                                         on_timeout, NULL, 0,
+                                         SL_SLEEPTIMER_NO_HIGH_PRECISION_HF_CLOCKS_REQUIRED_FLAG);
+  app_iostream_usart_init ();
 
-  app_led_init();
+  app_config_json ();
+
+  app_led_init ();
 }
 
-void app_process_action(void)
+void app_process_action (void)
 {
   // Send JSON configuration and wait to receive "connect" command
-  if (!config_received) {
-    app_config_process_action_imu();
-    app_config_process_action_audio();
-    app_iostream_usart_process_action();
-  } else { // once connected, no longer necessary to listen for commands
-      app_iostream_usart_process_action();
-      app_sensor_imu_process_action();
-      //app_voice_process_action();
-  }
+  if (!config_received)
+    {
+      app_config_process_action_config ();
+      app_iostream_usart_process_action ();
+    }
+  else
+    { // once connected, no longer necessary to listen for commands
+      app_iostream_usart_process_action ();
+      app_sensor_imu_process_action ();
+      app_voice_process_action ();
+    }
 
-  app_led_process_action();
+  app_led_process_action ();
 }

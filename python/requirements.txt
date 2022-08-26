@@ -1,0 +1,5 @@
+numpy
+soundfiles
+pandas
+serial
+sensiml

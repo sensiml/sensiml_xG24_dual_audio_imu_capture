@@ -36,23 +36,10 @@
 #ifndef APP_VOICE_H
 #define APP_VOICE_H
 
-#include <stdbool.h>
-#include <stdint.h>
 
-typedef enum {
-  sr_8k = 8,
-  sr_16k = 16,
-} sample_rate_t;
+#include "app_config.h"
 
-/***************************************************************************//**
- * Setup periodic timer for sending configuration messages.
- ******************************************************************************/
-void app_config_mic(void);
 
-/***************************************************************************//**
- * JSON configuration message ticking function.
- ******************************************************************************/
-void app_config_process_action_audio(void);
 
 /***************************************************************************//**
  * Initialize internal variables.
