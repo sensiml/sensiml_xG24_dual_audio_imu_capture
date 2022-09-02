@@ -76,16 +76,20 @@ def generate_dcli(
 if __name__ == "__main__":
 
     # SETTINGS
-    PROJECT_DIR = r"D:\SensiML\sensiml1_sensiml_demos\Smart_Lock_Audio"
-    FILENAMES = None
+    PROJECT_DIR = ""
+    FILENAMES = []
 
     if not PROJECT_DIR:
         PROJECT_DIR = os.path.join(
             os.path.expanduser("~/"), "Documents", "SensiML", "Projects"
         )
 
-    dclproj_imu_path = os.path.join(PROJECT_DIR, "Smart_Lock_IMU.dclproj")
-    dclproj_audio_path = os.path.join(PROJECT_DIR, "Smart_Lock_Audio.dclproj")
+    dclproj_imu_path = os.path.join(
+        PROJECT_DIR, "Smart_Lock_IMU", "Smart_Lock_IMU.dclproj"
+    )
+    dclproj_audio_path = os.path.join(
+        PROJECT_DIR, "Smart_Lock_Audio", "Smart_Lock_Audio.dclproj"
+    )
 
     imu_session_import = "ground_truth"
     audio_session_export = "ground_truth"
@@ -100,7 +104,7 @@ if __name__ == "__main__":
         dcl_imu,
         dcl_audio,
         imu_session_import=imu_session_import,
-        filename=FILENAMES,
+        imu_file_list=FILENAMES,
     )
 
     dcli = scaled_audio.to_dcli(
