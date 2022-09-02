@@ -8,7 +8,7 @@ import os
 from collections import namedtuple
 
 6
-Header = namedtuple("Header", ["data_size", "rsvd", "channel", "sequence_number"])
+Header = namedtuple("Header", ["data_size", "sequence", "channel", "time_stamp"])
 
 
 def get_config(port: str, baud_rate: int):
@@ -38,7 +38,7 @@ class RecordSensor(object):
         self.config = get_config(port, baud_rate)
         self.data = {}
 
-    def write_buffer(self, channel: int):
+    def write_buffer(self, channel: int, start_index: int = 0):
 
         num_cols = self.data[channel]["num_columns"]
         data = self.data[channel]["data_buffer"]
@@ -53,7 +53,7 @@ class RecordSensor(object):
         with open(self.data[channel]["filename"] + ".csv", "w") as out:
             out.write(",".join(self.data[channel]["columns"].keys()) + "\n")
 
-            for index in range(len(data) // num_cols):
+            for index in range(start_index, len(data) // num_cols):
                 out.write(
                     ",".join([str(data[index * num_cols + i]) for i in range(num_cols)])
                     + "\n"
@@ -70,10 +70,64 @@ class RecordSensor(object):
 
         return len(data) // num_cols
 
+    def get_timestamp_index_sync(self):
+
+        min_index = 0
+        for channel in list(self.data.keys()):
+            print(
+                "starting time_stamp for channel",
+                channel,
+                "is",
+                self.data[channel]["time_stamp"][0],
+            )
+            if min_index < self.data[channel]["time_stamp"][0]:
+                min_index = self.data[channel]["time_stamp"][0]
+
+        return min_index
+
+    def get_max_timestamp_index_sync(self):
+
+        max_index = None
+        for channel in list(self.data.keys()):
+            print(
+                "end time_stamp for channel",
+                channel,
+                "is",
+                self.data[channel]["time_stamp"][-1],
+            )
+            if max_index is None:
+                max_index = self.data[channel]["time_stamp"][-1]
+            if max_index > self.data[channel]["time_stamp"][-1]:
+                max_index = self.data[channel]["time_stamp"][-1]
+
+        return max_index
+
+    def get_nearest_index(self, channel, max_index):
+        for index, value in enumerate(self.data[channel]["time_stamp"]):
+            if value < max_index:
+                continue
+            return index
+
+    def get_nearest_equal_index(self, channel, max_index):
+        for index, value in enumerate(self.data[channel]["time_stamp"]):
+            if value <= max_index:
+                continue
+            return index
+
+        return len(self.data[channel]["time_stamp"]) - 1
+
     def write_buffers(self):
         data_size = {}
+        min_index = self.get_timestamp_index_sync()
+        max_index = self.get_max_timestamp_index_sync()
         for channel in self.data:
-            data_size[channel] = self.write_buffer(channel)
+
+            start_index = self.get_nearest_index(channel, min_index)
+            end_index = self.get_nearest_index(channel, max_index)
+            print("setting start sync for channel", channel, "to index", start_index)
+            print("setting end sync for channel", channel, "to index", end_index)
+
+            data_size[channel] = self.write_buffer(channel, start_index=start_index)
 
         return data_size
 
@@ -85,9 +139,9 @@ class RecordSensor(object):
 
         data_size = int.from_bytes(byte_array, "little")
 
-        # get rsvd
+        # get sequence
         byte_array = ser.read()
-        rsvd = int.from_bytes(byte_array, "little")
+        sequence = int.from_bytes(byte_array, "little")
 
         byte_array = ser.read()
         channel = int.from_bytes(byte_array, "little")
@@ -95,15 +149,18 @@ class RecordSensor(object):
         # read sequence number
         byte_array = ser.read() + ser.read() + ser.read() + ser.read()
 
-        sequence_number = int.from_bytes(byte_array, "little")
+        time_stamp = int.from_bytes(byte_array, "little")
 
-        return Header(data_size, rsvd, channel, sequence_number)
+        return Header(data_size, sequence, channel, time_stamp)
 
     def get_packet_data(self, ser: serial, header: Header):
 
         for i in range((header.data_size - 6) // 2):
             byte_array = ser.read() + ser.read()
             data_point = int.from_bytes(byte_array, "little", signed="True")
+            if i % self.data[header.channel]["num_columns"] == 0:
+                self.data[header.channel]["time_stamp"].append(header.time_stamp)
+                self.data[header.channel]["sequence"].append(header.sequence)
             self.data[header.channel]["data_buffer"].append(data_point)
 
     def find_sync(self, ser: serial):
@@ -161,6 +218,8 @@ class RecordSensor(object):
             self.data[sensor_config["channel"]] = {
                 "filename": filename,
                 "data_buffer": [],
+                "time_stamp": [],
+                "sequence": [],
                 "num_columns": len(sensor_config["column_location"]),
                 "sample_rate": sensor_config["sample_rate"],
                 "columns": sensor_config["column_location"],
@@ -186,9 +245,9 @@ def summarize_recording(record_time, data_sizes, recorder):
             record_time,
             "recorded",
             int(recorded_time),
-            "expected",
-            record_time * recorder.data[channel]["sample_rate"],
-            "actual",
+            "expected samples",
+            int(record_time * recorder.data[channel]["sample_rate"]),
+            "actual samples",
             data_sizes[channel],
             "calculated",
             int(data_sizes[channel] / recorded_time),
