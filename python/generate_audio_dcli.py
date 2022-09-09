@@ -76,7 +76,11 @@ def generate_dcli(
 if __name__ == "__main__":
 
     # SETTINGS
+
+    # If you changed your project dir from the default, you will need ot set this to the project dir you imported your Data Capture Lab Projects into
     PROJECT_DIR = None
+
+    # You can leave this blank and it will generate the segments for all of the audio files in the audio project. If you want to update a single file, you can specify it here.
     FILENAMES = []
 
     if not PROJECT_DIR:
