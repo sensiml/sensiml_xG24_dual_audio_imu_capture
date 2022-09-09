@@ -7,7 +7,7 @@ import json
 import os
 from collections import namedtuple
 
-6
+
 Header = namedtuple("Header", ["data_size", "sequence", "channel", "time_stamp"])
 
 
