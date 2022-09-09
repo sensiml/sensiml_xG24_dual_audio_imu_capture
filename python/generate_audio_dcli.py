@@ -76,7 +76,7 @@ def generate_dcli(
 if __name__ == "__main__":
 
     # SETTINGS
-    PROJECT_DIR = ""
+    PROJECT_DIR = None
     FILENAMES = []
 
     if not PROJECT_DIR:
@@ -87,6 +87,7 @@ if __name__ == "__main__":
     dclproj_imu_path = os.path.join(
         PROJECT_DIR, "Smart_Lock_IMU", "Smart_Lock_IMU.dclproj"
     )
+
     dclproj_audio_path = os.path.join(
         PROJECT_DIR, "Smart_Lock_Audio", "Smart_Lock_Audio.dclproj"
     )
@@ -95,10 +96,8 @@ if __name__ == "__main__":
     audio_session_export = "ground_truth"
     output_dcli = "scaled_segments.dcli"
 
-    dcl_imu = DCLProject()
-    dcl_imu.create_connection(dclproj_imu_path)
-    dcl_audio = DCLProject()
-    dcl_audio.create_connection(dclproj_audio_path)
+    dcl_imu = DCLProject(path=dclproj_imu_path)
+    dcl_audio = DCLProject(path=dclproj_audio_path)
 
     scaled_audio = generate_dcli(
         dcl_imu,
