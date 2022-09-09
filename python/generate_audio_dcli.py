@@ -76,7 +76,11 @@ def generate_dcli(
 if __name__ == "__main__":
 
     # SETTINGS
-    PROJECT_DIR = ""
+
+    # If you changed your project dir from the default, you will need ot set this to the project dir you imported your Data Capture Lab Projects into
+    PROJECT_DIR = None
+
+    # You can leave this blank and it will generate the segments for all of the audio files in the audio project. If you want to update a single file, you can specify it here.
     FILENAMES = []
 
     if not PROJECT_DIR:
@@ -87,6 +91,7 @@ if __name__ == "__main__":
     dclproj_imu_path = os.path.join(
         PROJECT_DIR, "Smart_Lock_IMU", "Smart_Lock_IMU.dclproj"
     )
+
     dclproj_audio_path = os.path.join(
         PROJECT_DIR, "Smart_Lock_Audio", "Smart_Lock_Audio.dclproj"
     )
@@ -95,10 +100,8 @@ if __name__ == "__main__":
     audio_session_export = "ground_truth"
     output_dcli = "scaled_segments.dcli"
 
-    dcl_imu = DCLProject()
-    dcl_imu.create_connection(dclproj_imu_path)
-    dcl_audio = DCLProject()
-    dcl_audio.create_connection(dclproj_audio_path)
+    dcl_imu = DCLProject(path=dclproj_imu_path)
+    dcl_audio = DCLProject(path=dclproj_audio_path)
 
     scaled_audio = generate_dcli(
         dcl_imu,

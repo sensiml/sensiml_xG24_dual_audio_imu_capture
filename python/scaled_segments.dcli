@@ -1,0 +1,610 @@
+[
+    {
+        "file_name": "record_session_audio_1.wav",
+        "sessions": [
+            {
+                "session_name": "ground_truth",
+                "segments": [
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 10645,
+                        "end": 27354
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 49049,
+                        "end": 65758
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 75460,
+                        "end": 92169
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 102006,
+                        "end": 118715
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 126531,
+                        "end": 143240
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 155637,
+                        "end": 172346
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 196467,
+                        "end": 213176
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 244708,
+                        "end": 261417
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "file_name": "record_session_audio_3.wav",
+        "sessions": [
+            {
+                "session_name": "ground_truth",
+                "segments": [
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 6198,
+                        "end": 22907
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 28162,
+                        "end": 44872
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 58481,
+                        "end": 75191
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 85701,
+                        "end": 102410
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 113056,
+                        "end": 129765
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 147013,
+                        "end": 163722
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 172616,
+                        "end": 189325
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 206438,
+                        "end": 223147
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 233254,
+                        "end": 249963
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 263168,
+                        "end": 279878
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "file_name": "record_session_audio_4.wav",
+        "sessions": [
+            {
+                "session_name": "ground_truth",
+                "segments": [
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 1218,
+                        "end": 18002
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 20303,
+                        "end": 37088
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 38306,
+                        "end": 55090
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 56308,
+                        "end": 73093
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 75123,
+                        "end": 91908
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 93803,
+                        "end": 110587
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 116272,
+                        "end": 133057
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 133869,
+                        "end": 150653
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 151871,
+                        "end": 168656
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 171498,
+                        "end": 188283
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 188824,
+                        "end": 205608
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 207639,
+                        "end": 224423
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 224829,
+                        "end": 241614
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 248111,
+                        "end": 264895
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 265166,
+                        "end": 281950
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 282221,
+                        "end": 299006
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "file_name": "record_session_audio_5.wav",
+        "sessions": [
+            {
+                "session_name": "ground_truth",
+                "segments": [
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 0,
+                        "end": 16709
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 41638,
+                        "end": 58347
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 62524,
+                        "end": 79233
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 79772,
+                        "end": 96481
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 99715,
+                        "end": 116424
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 121680,
+                        "end": 138389
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 138658,
+                        "end": 155368
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 155637,
+                        "end": 172346
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 172481,
+                        "end": 189190
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 190672,
+                        "end": 207381
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 224495,
+                        "end": 241204
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 251176,
+                        "end": 267885
+                    },
+                    {
+                        "name": "Label",
+                        "value": "key_io",
+                        "start": 279743,
+                        "end": 296452
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "file_name": "record_session_audio_6.wav",
+        "sessions": [
+            {
+                "session_name": "ground_truth",
+                "segments": [
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 20261,
+                        "end": 37124
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 39571,
+                        "end": 56433
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 66632,
+                        "end": 83495
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 98181,
+                        "end": 115043
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 127418,
+                        "end": 144280
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 155975,
+                        "end": 172837
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 179908,
+                        "end": 196770
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 211593,
+                        "end": 228455
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 240830,
+                        "end": 257692
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 269931,
+                        "end": 286793
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 304607,
+                        "end": 321469
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 330308,
+                        "end": 347170
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 361041,
+                        "end": 377903
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 393133,
+                        "end": 409995
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 425090,
+                        "end": 441952
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 456366,
+                        "end": 473229
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 486419,
+                        "end": 503281
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 520960,
+                        "end": 537822
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 552644,
+                        "end": 569506
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 588000,
+                        "end": 604863
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "file_name": "record_session_audio_7.wav",
+        "sessions": [
+            {
+                "session_name": "ground_truth",
+                "segments": [
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 3113,
+                        "end": 19897
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 45344,
+                        "end": 62129
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 89607,
+                        "end": 106391
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 131297,
+                        "end": 148081
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 172987,
+                        "end": 189772
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 214542,
+                        "end": 231327
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 258940,
+                        "end": 275724
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "file_name": "record_session_audio_8.wav",
+        "sessions": [
+            {
+                "session_name": "ground_truth",
+                "segments": [
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 0,
+                        "end": 16784
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 33839,
+                        "end": 50623
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 85004,
+                        "end": 101789
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 133869,
+                        "end": 150653
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 161076,
+                        "end": 177860
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 190854,
+                        "end": 207639
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 220769,
+                        "end": 237553
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 249871,
+                        "end": 266655
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 276536,
+                        "end": 293321
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "file_name": "record_session_audio_10.wav",
+        "sessions": [
+            {
+                "session_name": "ground_truth",
+                "segments": [
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 160596,
+                        "end": 177401
+                    },
+                    {
+                        "name": "Label",
+                        "value": "knocking",
+                        "start": 189734,
+                        "end": 206539
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 219278,
+                        "end": 236083
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 244350,
+                        "end": 261156
+                    },
+                    {
+                        "name": "Label",
+                        "value": "locking",
+                        "start": 270371,
+                        "end": 287176
+                    }
+                ]
+            }
+        ]
+    }
+]
