@@ -1,6 +1,6 @@
 numpy
 soundfile
 pandas
-serial
+pyserial
 sensiml>=2022.3.0
 fsspec
