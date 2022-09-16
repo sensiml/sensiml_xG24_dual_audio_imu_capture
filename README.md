@@ -20,8 +20,8 @@ v4.02
 
 The data for the included project can be found ere
 
-[Smart Lock IMU Data](https://sensiml-data-depot.s3.us-west-2.amazonaws.com/workswith-2022/Smart_Lock_IMU.zip)
-[Smart Lock Audio Data](https://sensiml-data-depot.s3.us-west-2.amazonaws.com/workswith-2022/Smart_Lock_Audio.zip)
+* [Smart Lock IMU Data](https://sensiml-data-depot.s3.us-west-2.amazonaws.com/workswith-2022/Smart_Lock_IMU.zip)
+* [Smart Lock Audio Data](https://sensiml-data-depot.s3.us-west-2.amazonaws.com/workswith-2022/Smart_Lock_Audio.zip)
 
 
 ## Setup
