@@ -16,6 +16,14 @@ v4.02
 
 - One micro USB cable
 
+## Data Capture Lab Projects
+
+The data for the included project can be found ere
+
+[Smart Lock IMU Data](https://sensiml-data-depot.s3.us-west-2.amazonaws.com/workswith-2022/Smart_Lock_IMU.zip)
+[Smart Lock Audio Data](https://sensiml-data-depot.s3.us-west-2.amazonaws.com/workswith-2022/Smart_Lock_Audio.zip)
+
+
 ## Setup
 
 Import the included .sls file to Studio then build and flash the project to the SLTB004A development kit.
